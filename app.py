@@ -69,7 +69,6 @@ PAGE_RENDERERS: dict = {
     Pages.RENDIMENTOS: render_rendimentos,
     Pages.ADMIN_SYNC: render_admin_sync,
     # Fases futuras adicionarão as páginas aqui:
-    # Pages.CONTRIBUICOES: render_contribuicoes,
     # Pages.CONTAS: render_contas,
     # Pages.ADMIN_USUARIOS: render_admin_usuarios,
 }

@@ -2,7 +2,7 @@
 🐺 Wolf Wallet — Filter Components
 
 Componentes reutilizáveis de filtro para páginas de listagem.
-Usado no Extrato, Rendimentos, Contribuições.
+Usado no Extrato e Rendimentos.
 
 Usage:
     from components.filters import render_transaction_filters

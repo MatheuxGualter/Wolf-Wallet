@@ -77,7 +77,7 @@ def get_all_users(include_inactive: bool = False) -> list[dict]:
 
 def get_active_members() -> list[dict]:
     """
-    Retorna todos os membros ativos (para contribuições).
+    Retorna todos os membros ativos.
 
     Returns:
         Lista de usuários ativos com id, name, email.

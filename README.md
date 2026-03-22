@@ -12,8 +12,7 @@ Atualmente, o responsável pela conta do Mercado Pago do PET-SI precisa baixar o
 - 📊 **Dashboard** com saldo, entradas, saídas e rendimentos em tempo real
 - 📋 **Extrato detalhado** com filtros avançados e exportação
 - 📈 **Rendimentos** CDI acompanhados dia a dia
-- 👥 **Contribuições** dos membros com controle mensal
-- 💳 **Contas mensais** com alertas de vencimento
+-  **Contas mensais** com alertas de vencimento
 - 🔄 **Sincronização automática** com a API do Mercado Pago
 
 ---
@@ -102,7 +101,6 @@ wolf-wallet/
 │   ├── home.py                # Dashboard principal
 │   ├── extrato.py             # Extrato detalhado
 │   ├── rendimentos.py         # Tela de rendimentos
-│   ├── contribuicoes.py       # Contribuições dos membros
 │   ├── contas.py              # Contas mensais
 │   ├── admin_usuarios.py      # Gerenciamento de usuários (admin)
 │   └── admin_sync.py          # Painel de sincronização (admin)
@@ -115,7 +113,6 @@ wolf-wallet/
 │   ├── user.py                # CRUD de usuários
 │   ├── transaction.py         # CRUD de transações
 │   ├── bill.py                # CRUD de contas mensais
-│   ├── contribution.py        # CRUD de contribuições
 │   └── sync_log.py            # CRUD de logs de sync
 ├── components/
 │   ├── sidebar.py             # Sidebar de navegação
@@ -137,8 +134,8 @@ wolf-wallet/
 
 | Role | Permissões |
 |---|---|
-| **Admin** | Tudo: gerenciar usuários, contas, confirmar contribuições, sync |
-| **User** | Visualizar dashboard, extrato, contribuições, contas |
+| **Admin** | Tudo: gerenciar usuários, contas, sync |
+| **User** | Visualizar dashboard, extrato, contas |
 | **Visitante** | Dashboard com dados fictícios (demonstração) |
 
 ---
@@ -151,12 +148,11 @@ wolf-wallet/
 - [ ] **Fase 3** — Integração Mercado Pago
 - [ ] **Fase 4** — Extrato detalhado
 - [ ] **Fase 5** — Rendimentos
-- [ ] **Fase 6** — Contribuições
-- [ ] **Fase 7** — Contas mensais
-- [ ] **Fase 8** — Gestão de usuários e email
-- [ ] **Fase 9** — Modo visitante (dados mockados)
-- [ ] **Fase 10** — Polimento UX
-- [ ] **Fase 11** — Deploy
+- [ ] **Fase 6** — Contas mensais
+- [ ] **Fase 7** — Gestão de usuários e email
+- [ ] **Fase 8** — Modo visitante (dados mockados)
+- [ ] **Fase 9** — Polimento UX
+- [ ] **Fase 10** — Deploy
 
 ---
 

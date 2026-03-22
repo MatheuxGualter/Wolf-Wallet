@@ -55,7 +55,7 @@ def get_mock_transactions() -> list[dict]:
         else:
             month_end = date(month_start.year, month_start.month + 1, 1) - timedelta(days=1)
 
-        # --- Contribuições Pix (8-12 por mês) ---
+        # --- Pix recebidos (8-12 por mês) ---
         num_pix = random.randint(8, 12)
         for _ in range(num_pix):
             day = random.randint(1, min(28, month_end.day))

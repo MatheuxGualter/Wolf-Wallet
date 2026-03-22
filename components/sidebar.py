@@ -107,7 +107,6 @@ def _render_navigation() -> str:
         nav_items.update({
             f"{UI.ICONS['extrato']} Extrato": Pages.EXTRATO,
             f"{UI.ICONS['rendimentos']} Rendimentos": Pages.RENDIMENTOS,
-            f"{UI.ICONS['contribuicoes']} Contribuições": Pages.CONTRIBUICOES,
             f"{UI.ICONS['contas']} Contas Mensais": Pages.CONTAS,
         })
 

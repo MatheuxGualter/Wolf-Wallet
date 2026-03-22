@@ -8,7 +8,7 @@
 Atualmente, o responsável pela conta precisa baixar o extrato manualmente pelo app do Mercado Pago e enviar no WhatsApp/Teams todo mês. Isso é trabalhoso, propenso a atrasos e pouco transparente.
 
 ### Solução
-Um site onde todos os membros acessam o dashboard financeiro da conta em tempo real, com histórico completo, controle de contribuições e gestão de contas a pagar.
+Um site onde todos os membros acessam o dashboard financeiro da conta em tempo real, com histórico completo e gestão de contas a pagar.
 
 ---
 
@@ -173,21 +173,6 @@ CREATE TABLE bill_payments (
 );
 ```
 
-#### `member_contributions` — Controle de contribuições mensais dos membros
-```sql
-CREATE TABLE member_contributions (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
-    reference_month DATE NOT NULL,
-    expected_amount DECIMAL(12,2) NOT NULL,
-    status VARCHAR(15) DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'late')),
-    confirmed_by INTEGER REFERENCES users(id),
-    confirmed_at TIMESTAMP,
-    notes TEXT,
-    UNIQUE(user_id, reference_month)
-);
-```
-
 #### `sync_log` — Log de sincronização com a API
 ```sql
 CREATE TABLE sync_log (
@@ -265,7 +250,7 @@ https://api.mercadopago.com/v1/account/settlement_report
 
 | Tipo | Descrição | Valor |
 |---|---|---|
-| `SETTLEMENT` (pix) | Contribuição recebida via Pix | Positivo |
+| `SETTLEMENT` (pix) | Pix recebido | Positivo |
 | `SETTLEMENT` (vazio) | Rendimento automático (CDI) | Positivo (pequeno) |
 | `SETTLEMENT` (vazio, negativo) | Imposto sobre rendimento (IOF/IR) | Negativo (pequeno) |
 | `REFUND` | Devolução de pagamento | Negativo |
@@ -297,8 +282,8 @@ Fluxo do sync job:
 
 | Role | Permissões |
 |---|---|
-| **admin** (2 pessoas) | Tudo: criar/editar/remover usuários, gerenciar contas, confirmar contribuições, disparar sync manual, visualizar tudo |
-| **user** (12 pessoas) | Visualizar dashboard, extrato, contribuições, contas. Não pode criar usuários nem editar dados |
+| **admin** (2 pessoas) | Tudo: criar/editar/remover usuários, gerenciar contas, disparar sync manual, visualizar tudo |
+| **user** (12 pessoas) | Visualizar dashboard, extrato, contas. Não pode criar usuários nem editar dados |
 | **visitante** (sem login) | Tela pública com explicação do projeto + dados mockados para demonstração |
 
 ### Fluxo de autenticação
@@ -422,28 +407,7 @@ Tela de Login
 
 ---
 
-### 8.5 Contribuições dos Membros (`/contribuicoes`)
-
-**Acesso:** Logado (user/admin)
-
-#### Visão mensal
-Tabela tipo "quadro" mostrando cada membro e o status da contribuição do mês selecionado:
-
-| Membro | Valor Esperado | Status | Confirmado por | Data |
-|---|---|---|---|---|
-| João Silva | R$ 10,00 | ✅ Pago | Admin1 | 05/03 |
-| Maria Santos | R$ 10,00 | ⏳ Pendente | — | — |
-| Pedro Lima | R$ 10,00 | 🔴 Atrasado | — | — |
-
-#### Regras
-- **Admin** pode alterar o status de qualquer contribuição (marcar como pago/pendente)
-- **User** apenas visualiza
-- O status `late` (atrasado) é atribuído automaticamente se a contribuição não foi confirmada até o dia 10 do mês seguinte (configurável)
-- Seletor de mês para navegar entre meses
-
----
-
-### 8.6 Contas Mensais (`/contas`)
+### 8.5 Contas Mensais (`/contas`)
 
 **Acesso:** Admin (gerenciar) / User (visualizar)
 
@@ -558,7 +522,6 @@ wolf-wallet/
 │   ├── home.py                # Dashboard principal
 │   ├── extrato.py             # Extrato detalhado
 │   ├── rendimentos.py         # Tela de rendimentos
-│   ├── contribuicoes.py       # Contribuições dos membros
 │   ├── contas.py              # Contas mensais
 │   ├── admin_usuarios.py      # Gerenciamento de usuários (admin)
 │   └── admin_sync.py          # Painel de sincronização (admin)
@@ -573,7 +536,6 @@ wolf-wallet/
 │   ├── user.py                # CRUD de usuários
 │   ├── transaction.py         # CRUD de transações
 │   ├── bill.py                # CRUD de contas mensais
-│   ├── contribution.py        # CRUD de contribuições
 │   └── sync_log.py            # CRUD de logs de sync
 │
 ├── components/
@@ -672,7 +634,6 @@ JWT_SECRET = "chave-secreta-aleatoria"
 
 ### Fase 2 — Funcionalidades Core (Semanas 3-4)
 - [ ] Gerenciamento de usuários (admin)
-- [ ] Contribuições dos membros
 - [ ] Contas mensais
 - [ ] Tela de rendimentos
 - [ ] "Esqueci minha senha" com email

@@ -36,13 +36,6 @@ class App:
 class Finance:
     """Constantes financeiras do projeto."""
 
-    # Valor padrão da contribuição mensal de cada membro
-    DEFAULT_CONTRIBUTION_AMOUNT: Decimal = Decimal("10.00")
-
-    # Dia limite para a contribuição ser considerada atrasada
-    # (dia do mês seguinte ao de referência)
-    LATE_THRESHOLD_DAY: int = 10
-
     # Moeda padrão
     CURRENCY: str = "BRL"
     CURRENCY_SYMBOL: str = "R$"
@@ -85,7 +78,6 @@ class UI:
         "dashboard": "🏠",
         "extrato": "📋",
         "rendimentos": "📈",
-        "contribuicoes": "👥",
         "contas": "💳",
         "admin_usuarios": "👤",
         "admin_sync": "🔄",
@@ -251,7 +243,6 @@ class Pages:
     HOME: str = "home"
     EXTRATO: str = "extrato"
     RENDIMENTOS: str = "rendimentos"
-    CONTRIBUICOES: str = "contribuicoes"
     CONTAS: str = "contas"
     ADMIN_USUARIOS: str = "admin_usuarios"
     ADMIN_SYNC: str = "admin_sync"
@@ -265,7 +256,7 @@ class Pages:
     # Todas as páginas que requerem login
     AUTH_PAGES: list[str] = [
         HOME, EXTRATO, RENDIMENTOS,
-        CONTRIBUICOES, CONTAS,
+        CONTAS,
         ADMIN_USUARIOS, ADMIN_SYNC,
     ]
 
