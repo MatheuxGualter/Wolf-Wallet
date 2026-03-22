@@ -26,6 +26,7 @@ from auth.session import (
 from components.sidebar import render_sidebar
 from config.settings import App, Pages, UI
 from pages.admin_sync import render_admin_sync
+from pages.admin_usuarios import render_admin_usuarios
 from pages.contas import render_contas
 from pages.extrato import render_extrato
 from pages.home import render_home
@@ -70,8 +71,7 @@ PAGE_RENDERERS: dict = {
     Pages.RENDIMENTOS: render_rendimentos,
     Pages.CONTAS: render_contas,
     Pages.ADMIN_SYNC: render_admin_sync,
-    # Fases futuras adicionarão as páginas aqui:
-    # Pages.ADMIN_USUARIOS: render_admin_usuarios,
+    Pages.ADMIN_USUARIOS: render_admin_usuarios,
 }
 
 
