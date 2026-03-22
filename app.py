@@ -25,6 +25,7 @@ from auth.session import (
 )
 from components.sidebar import render_sidebar
 from config.settings import App, Pages, UI
+from pages.home import render_home
 
 
 # =============================================
@@ -42,41 +43,8 @@ st.set_page_config(
 
 
 # =============================================
-# Page Renderers
+# Page Renderers (placeholders para fases futuras)
 # =============================================
-def _render_home() -> None:
-    """Dashboard placeholder — será substituído na Fase 2."""
-    if not require_auth():
-        return
-
-    render_visitor_banner()
-
-    st.title(f"{App.EMOJI} Dashboard")
-
-    user = st.session_state.get("user")
-    if user:
-        st.success(f"Logado como **{user['name']}** ({user['role']})")
-    elif is_visitor():
-        st.info("Modo visitante ativo")
-
-    # Cards placeholder
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("💰 Saldo Atual", "R$ ••••••")
-    with col2:
-        st.metric("📥 Entradas do Mês", "R$ ••••••")
-    with col3:
-        st.metric("📤 Saídas do Mês", "R$ ••••••")
-    with col4:
-        st.metric("📈 Rendimentos", "R$ ••••••")
-
-    st.divider()
-    st.info(
-        "🔧 **Fase 1 concluída!** Autenticação e navegação funcionais.\n\n"
-        "Próximo passo: **Fase 2** — Dashboard com dados reais."
-    )
-
-
 def _render_coming_soon(page: str) -> None:
     """Placeholder genérico para páginas ainda não implementadas."""
     if page in Pages.ADMIN_PAGES:
@@ -93,7 +61,7 @@ def _render_coming_soon(page: str) -> None:
 # Router
 # =============================================
 PAGE_RENDERERS: dict = {
-    Pages.HOME: _render_home,
+    Pages.HOME: render_home,
     # Fases futuras adicionarão as páginas aqui:
     # Pages.EXTRATO: render_extrato,
     # Pages.RENDIMENTOS: render_rendimentos,
