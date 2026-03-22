@@ -119,7 +119,10 @@ def sync_transactions(
         _progress(f"💾 Inserindo {len(df)} transações no banco...")
         records_added = insert_transactions_batch(df)
 
-        # 7. Registra no log
+        # 7. Enriquece transações não-rendimento com descrição do pagamento
+        _enrich_new_transactions(client, _progress)
+
+        # 8. Registra no log
         create_log(
             records_added=records_added,
             status="success",
@@ -167,6 +170,67 @@ def sync_transactions(
             "records_added": 0,
             "message": error_msg,
         }
+
+
+def _enrich_new_transactions(
+    client: "MercadoPagoClient",
+    progress_callback: callable | None = None,
+) -> int:
+    """
+    Enriquece transações que ainda não têm payment_description.
+
+    Somente busca para transações que NÃO são rendimento/imposto CDI:
+    - Tem payment_method preenchido (pix, available_money, etc.)
+    - OU valor absoluto >= threshold
+
+    Isso evita chamadas desnecessárias para os ~90% de rendimentos.
+    """
+    from config.database import execute_query, execute_update
+    from config.settings import Finance
+
+    threshold = float(Finance.YIELD_THRESHOLD)
+
+    # Busca transações sem descrição que não são rendimento
+    rows = execute_query(
+        "SELECT DISTINCT source_id FROM transactions "
+        "WHERE payment_description IS NULL "
+        "AND ("
+        "  (payment_method IS NOT NULL AND payment_method != '') "
+        "  OR ABS(transaction_amount) >= :threshold"
+        ")",
+        {"threshold": threshold},
+    )
+
+    if not rows:
+        return 0
+
+    source_ids = [r["source_id"] for r in rows if r.get("source_id")]
+
+    if not source_ids:
+        return 0
+
+    def _progress(msg: str) -> None:
+        if progress_callback:
+            progress_callback(msg)
+
+    _progress(f"🏷️ Buscando descrições para {len(source_ids)} transações...")
+
+    enrichments = client.enrich_transactions(source_ids)
+
+    # Atualiza no banco
+    updated = 0
+    for sid, description in enrichments.items():
+        rows_affected = execute_update(
+            "UPDATE transactions SET payment_description = :desc "
+            "WHERE source_id = :sid AND payment_description IS NULL",
+            {"desc": description, "sid": sid},
+        )
+        updated += rows_affected or 0
+
+    if updated:
+        _progress(f"🏷️ {updated} transações enriquecidas com descrição.")
+
+    return updated
 
 
 def run_daily_sync(progress_callback: callable | None = None) -> dict:

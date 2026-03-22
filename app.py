@@ -26,6 +26,7 @@ from auth.session import (
 from components.sidebar import render_sidebar
 from config.settings import App, Pages, UI
 from pages.admin_sync import render_admin_sync
+from pages.extrato import render_extrato
 from pages.home import render_home
 
 
@@ -63,9 +64,9 @@ def _render_coming_soon(page: str) -> None:
 # =============================================
 PAGE_RENDERERS: dict = {
     Pages.HOME: render_home,
+    Pages.EXTRATO: render_extrato,
     Pages.ADMIN_SYNC: render_admin_sync,
     # Fases futuras adicionarão as páginas aqui:
-    # Pages.EXTRATO: render_extrato,
     # Pages.RENDIMENTOS: render_rendimentos,
     # Pages.CONTRIBUICOES: render_contribuicoes,
     # Pages.CONTAS: render_contas,

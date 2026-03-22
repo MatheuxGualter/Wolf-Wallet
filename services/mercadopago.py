@@ -303,6 +303,81 @@ class MercadoPagoClient:
     # Schedule (geração automática)
     # =============================================
 
+    # =============================================
+    # Payments API (enrichment)
+    # =============================================
+
+    def get_payment_detail(self, payment_id: str) -> dict | None:
+        """
+        Busca detalhes de um pagamento pela Payments API.
+
+        Endpoint: GET /v1/payments/{id}
+        Usado para enriquecer transações com descrição do pagamento.
+
+        Args:
+            payment_id: ID do pagamento (source_id do settlement).
+
+        Returns:
+            Dict com description e payer info, ou None se não encontrado.
+        """
+        try:
+            url = f"https://api.mercadopago.com/v1/payments/{payment_id}"
+            headers = {**self.headers}
+            response = requests.get(url, headers=headers, timeout=self.timeout)
+
+            if response.status_code == 200:
+                data = response.json()
+                payer = data.get("payer", {})
+                fname = payer.get("first_name") or ""
+                lname = payer.get("last_name") or ""
+                payer_name = f"{fname} {lname}".strip() or None
+
+                return {
+                    "description": data.get("description"),
+                    "payer_name": payer_name,
+                    "payer_email": payer.get("email"),
+                }
+
+            if response.status_code == 404:
+                return None
+
+            logger.warning(f"Payment detail {payment_id}: HTTP {response.status_code}")
+            return None
+
+        except Exception as e:
+            logger.warning(f"Erro ao buscar payment {payment_id}: {e}")
+            return None
+
+    def enrich_transactions(self, source_ids: list[str]) -> dict[str, str]:
+        """
+        Busca descrição para múltiplos pagamentos.
+
+        Filtra automaticamente para não fazer chamadas desnecessárias.
+
+        Args:
+            source_ids: Lista de source_ids para buscar.
+
+        Returns:
+            Dict {source_id: description} para os que retornaram dados.
+        """
+        enrichments: dict[str, str] = {}
+
+        for sid in source_ids:
+            if not sid:
+                continue
+
+            detail = self.get_payment_detail(sid)
+            if detail and detail.get("description"):
+                enrichments[sid] = detail["description"]
+                logger.info(f"  Enriched {sid}: {detail['description']}")
+
+        logger.info(f"Enrichment: {len(enrichments)}/{len(source_ids)} transações enriquecidas.")
+        return enrichments
+
+    # =============================================
+    # Schedule (geração automática)
+    # =============================================
+
     def enable_schedule(self) -> dict:
         """Ativa geração automática de relatórios."""
         logger.info("Ativando schedule de relatórios...")

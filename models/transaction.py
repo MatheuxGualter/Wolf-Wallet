@@ -137,7 +137,7 @@ def get_recent_transactions(limit: int = 10) -> list[dict]:
     return execute_query(
         "SELECT id, source_id, external_reference, payment_method, "
         "transaction_type, transaction_amount, transaction_currency, "
-        "transaction_date, fee_amount, settlement_net_amount "
+        "transaction_date, fee_amount, settlement_net_amount, payment_description "
         "FROM transactions "
         "ORDER BY transaction_date DESC "
         "LIMIT :limit",
@@ -218,7 +218,7 @@ def get_transactions(
     rows = execute_query(
         f"SELECT id, source_id, external_reference, payment_method, "
         f"transaction_type, transaction_amount, transaction_currency, "
-        f"transaction_date, fee_amount, settlement_net_amount "
+        f"transaction_date, fee_amount, settlement_net_amount, payment_description "
         f"FROM transactions WHERE {where_clause} "
         f"ORDER BY transaction_date DESC "
         f"LIMIT :limit OFFSET :offset",

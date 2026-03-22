@@ -86,6 +86,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     transaction_date        TIMESTAMP       NOT NULL,
     fee_amount              DECIMAL(12,2)   DEFAULT 0,
     settlement_net_amount   DECIMAL(12,2)   NOT NULL,
+    payment_description     VARCHAR(200)    DEFAULT NULL,
     synced_at               TIMESTAMP       DEFAULT NOW(),
 
     -- Evita duplicatas: mesma transação não é inserida duas vezes
