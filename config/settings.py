@@ -171,7 +171,7 @@ class MercadoPago:
 
     # Polling para aguardar processamento do relatório
     POLL_INTERVAL_SECONDS: int = 10
-    POLL_MAX_WAIT_SECONDS: int = 300  # 5 minutos
+    POLL_MAX_WAIT_SECONDS: int = 600  # 10 minutos
 
     # Configuração do relatório
     FILE_NAME_PREFIX: str = "extrato-projeto"

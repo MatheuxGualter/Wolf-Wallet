@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from contextlib import contextmanager
 from typing import Generator
+from urllib.parse import quote_plus, urlparse, urlunparse
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
@@ -80,6 +81,31 @@ def _get_database_url() -> str:
     )
 
 
+def _encode_database_url(raw_url: str) -> str:
+    """
+    Garante que a senha na DATABASE_URL está URL-encoded.
+
+    Caracteres especiais como *, &, / na senha podem quebrar
+    o parsing da URL pelo SQLAlchemy.
+
+    Args:
+        raw_url: URL original (pode ter senha não-encoded).
+
+    Returns:
+        URL com senha devidamente encoded.
+    """
+    parsed = urlparse(raw_url)
+    if parsed.password:
+        encoded_password = quote_plus(parsed.password)
+        # Reconstrói netloc: user:encoded_pass@host:port
+        if parsed.port:
+            netloc = f"{parsed.username}:{encoded_password}@{parsed.hostname}:{parsed.port}"
+        else:
+            netloc = f"{parsed.username}:{encoded_password}@{parsed.hostname}"
+        return urlunparse(parsed._replace(netloc=netloc))
+    return raw_url
+
+
 def get_engine() -> Engine:
     """
     Retorna o SQLAlchemy Engine (singleton com connection pool).
@@ -99,7 +125,7 @@ def get_engine() -> Engine:
         return _engine
 
     try:
-        database_url = _get_database_url()
+        database_url = _encode_database_url(_get_database_url())
 
         _engine = create_engine(
             database_url,

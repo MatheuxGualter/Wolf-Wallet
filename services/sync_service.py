@@ -1,0 +1,205 @@
+"""
+🐺 Wolf Wallet — Sync Service
+
+Job de sincronização com a API do Mercado Pago.
+Orquestra: geração de relatório → polling → download CSV → parse → insert no banco.
+
+Usage:
+    from services.sync_service import run_daily_sync, sync_transactions
+"""
+
+from __future__ import annotations
+
+import logging
+from datetime import datetime, timedelta
+
+from config.settings import MercadoPago as MPConfig
+from models.sync_log import create_log, get_last_successful_log
+from models.transaction import insert_transactions_batch
+from services.mercadopago import MercadoPagoAPIError, get_client
+
+logger = logging.getLogger(__name__)
+
+
+def get_last_sync_date() -> datetime | None:
+    """
+    Retorna a data final da última sincronização bem-sucedida.
+
+    Returns:
+        datetime ou None se nunca sincronizou.
+    """
+    log = get_last_successful_log()
+    if log and log.get("end_date"):
+        return log["end_date"]
+    return None
+
+
+def sync_transactions(
+    begin_date: datetime,
+    end_date: datetime,
+    progress_callback: callable | None = None,
+) -> dict:
+    """
+    Executa o fluxo completo de sincronização para um período.
+
+    Fluxo:
+        1. Gera relatório via POST /settlement_report
+        2. Aguarda processamento (polling)
+        3. Baixa o CSV
+        4. Parseia com pandas
+        5. Insere novos registros no banco (ignora duplicatas)
+        6. Registra no sync_log
+
+    Args:
+        begin_date: Início do período.
+        end_date: Fim do período.
+        progress_callback: Função opcional para atualizar progresso (recebe str).
+
+    Returns:
+        Dict com: status, records_added, message.
+    """
+    def _progress(msg: str) -> None:
+        logger.info(msg)
+        if progress_callback:
+            progress_callback(msg)
+
+    try:
+        # 1. Conecta à API
+        _progress("🔗 Conectando à API do Mercado Pago...")
+        client = get_client()
+
+        # 2. Gera relatório
+        _progress(f"📊 Gerando relatório: {begin_date.strftime('%d/%m/%Y')} → {end_date.strftime('%d/%m/%Y')}...")
+        result = client.generate_report(begin_date, end_date)
+
+        report_id = result.get("id")
+        if not report_id:
+            logger.warning(f"Resposta do POST sem 'id': {result}")
+            raise RuntimeError(
+                "API não retornou o ID do relatório. "
+                "Verifique se o token tem permissão para gerar relatórios."
+            )
+
+        # 3. Aguarda processamento (polling por ID até file_name aparecer)
+        _progress(f"⏳ Aguardando processamento (id={report_id})...")
+        file_name = client.wait_for_report_ready(report_id)
+
+        if not file_name:
+            raise RuntimeError(
+                f"Relatório id={report_id} não ficou pronto em {MPConfig.POLL_MAX_WAIT_SECONDS}s."
+            )
+
+        # 4. Baixa o CSV
+        _progress("⬇️ Baixando relatório CSV...")
+        csv_content = client.download_report(file_name)
+
+        if not csv_content or len(csv_content) < 10:
+            raise RuntimeError("CSV vazio ou inválido.")
+
+        # 5. Parseia o CSV
+        _progress("🔄 Processando dados...")
+        df = client.parse_settlement_csv(csv_content)
+
+        if df.empty:
+            # Sem transações novas — não é erro
+            _progress("ℹ️ Nenhuma transação nova no período.")
+            create_log(
+                records_added=0,
+                status="success",
+                begin_date=begin_date,
+                end_date=end_date,
+            )
+            return {
+                "status": "success",
+                "records_added": 0,
+                "message": "Nenhuma transação nova no período.",
+            }
+
+        # 6. Insere no banco
+        _progress(f"💾 Inserindo {len(df)} transações no banco...")
+        records_added = insert_transactions_batch(df)
+
+        # 7. Registra no log
+        create_log(
+            records_added=records_added,
+            status="success",
+            begin_date=begin_date,
+            end_date=end_date,
+        )
+
+        message = f"Sincronização concluída: {records_added} novas transações inseridas."
+        _progress(f"✅ {message}")
+
+        return {
+            "status": "success",
+            "records_added": records_added,
+            "message": message,
+        }
+
+    except MercadoPagoAPIError as e:
+        error_msg = f"Erro na API do Mercado Pago: {e}"
+        logger.error(error_msg)
+        create_log(
+            records_added=0,
+            status="error",
+            error_message=error_msg,
+            begin_date=begin_date,
+            end_date=end_date,
+        )
+        return {
+            "status": "error",
+            "records_added": 0,
+            "message": error_msg,
+        }
+
+    except Exception as e:
+        error_msg = f"Erro durante sincronização: {e}"
+        logger.error(error_msg, exc_info=True)
+        create_log(
+            records_added=0,
+            status="error",
+            error_message=error_msg,
+            begin_date=begin_date,
+            end_date=end_date,
+        )
+        return {
+            "status": "error",
+            "records_added": 0,
+            "message": error_msg,
+        }
+
+
+def run_daily_sync(progress_callback: callable | None = None) -> dict:
+    """
+    Executa a sincronização diária automática.
+
+    Determina o período automaticamente:
+        - begin_date: data da última sync bem-sucedida (ou 6 meses atrás)
+        - end_date: ontem 23:59:59
+
+    Args:
+        progress_callback: Função opcional para atualizar progresso.
+
+    Returns:
+        Dict com: status, records_added, message.
+    """
+    # Determina begin_date
+    last_sync = get_last_sync_date()
+    if last_sync:
+        begin_date = last_sync
+    else:
+        # Primeira sync: 6 meses atrás
+        begin_date = datetime.now() - timedelta(days=180)
+        begin_date = begin_date.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # end_date: ontem 23:59:59
+    end_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(seconds=1)
+
+    if begin_date >= end_date:
+        return {
+            "status": "success",
+            "records_added": 0,
+            "message": "Dados já estão atualizados (última sync é de hoje).",
+        }
+
+    return sync_transactions(begin_date, end_date, progress_callback)
