@@ -27,7 +27,7 @@ class App:
         "de forma transparente e automatizada."
     )
     AUTHOR: str = "PET-SI — Universidade Federal de Uberlândia"
-    REPO_URL: str = "https://github.com/pet-si-ufu/wolf-wallet"
+    REPO_URL: str = "https://github.com/PET-Sistemas-de-Informacao-UFU/Wolf-Wallet"
 
 
 # =============================================

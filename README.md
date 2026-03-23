@@ -46,7 +46,7 @@ Atualmente, o responsável pela conta do Mercado Pago do PET-SI precisa baixar o
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/MatheuxGualter/Wolf-Wallet.git
+git clone https://github.com/PET-Sistemas-de-Informacao-UFU/Wolf-Wallet.git
 cd wolf-wallet
 
 # 2. Crie e ative o ambiente virtual
