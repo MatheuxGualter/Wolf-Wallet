@@ -41,6 +41,14 @@ def init_session_state() -> None:
         if key not in st.session_state:
             st.session_state[key] = default_value
 
+    # Tenta restaurar sessão via cookie se não autenticado
+    if not st.session_state.get(SessionKeys.AUTHENTICATED, False):
+        try:
+            from auth.cookie_session import restore_session_from_cookie
+            restore_session_from_cookie()
+        except Exception:
+            pass  # Cookie é best-effort
+
 
 # =============================================
 # Login / Logout
@@ -65,6 +73,13 @@ def login_user(user: dict) -> None:
     st.session_state[SessionKeys.CURRENT_PAGE] = Pages.HOME
     st.session_state[SessionKeys.MUST_CHANGE_PASSWORD] = user.get("must_change_password", False)
 
+    # Persiste sessão em cookie do navegador
+    try:
+        from auth.cookie_session import save_session_cookie
+        save_session_cookie(user["id"])
+    except Exception:
+        pass  # Cookie é best-effort
+
 
 def login_visitor() -> None:
     """Registra o acesso como visitante (modo demo)."""
@@ -81,6 +96,13 @@ def logout_user() -> None:
 
     Preserva apenas o tema escolhido pelo usuário.
     """
+    # Remove cookie de sessão
+    try:
+        from auth.cookie_session import clear_session_cookie
+        clear_session_cookie()
+    except Exception:
+        pass
+
     current_theme = st.session_state.get(SessionKeys.THEME, "dark")
 
     keys_to_clear = [

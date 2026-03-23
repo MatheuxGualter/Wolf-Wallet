@@ -148,6 +148,20 @@ def _render_controls() -> None:
 
 def _render_change_password() -> None:
     """Formulário de alteração de senha no sidebar."""
+    # Centraliza o texto do expander
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"] [data-testid="stExpander"] summary {
+            justify-content: center;
+        }
+        [data-testid="stSidebar"] [data-testid="stExpander"] summary span {
+            text-align: center;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     with st.expander("🔑 Alterar Senha", expanded=False):
         current_pw = st.text_input(
             "Senha atual", type="password", key="sidebar_current_pw"
@@ -195,9 +209,16 @@ def _render_change_password() -> None:
 
 
 def _render_logout() -> None:
-    """Renderiza o botão de logout na parte inferior do sidebar."""
+    """Renderiza o botão de logout e rodapé com versão."""
     st.markdown("<br>", unsafe_allow_html=True)
 
     if st.button("🚪 Sair", use_container_width=True, key="logout_btn"):
         logout_user()
         st.rerun()
+
+    st.markdown(
+        f"<p style='text-align:center;color:#555;font-size:0.7rem;margin-top:1.5rem;'>"
+        f"🐺 {App.NAME} v{App.VERSION}"
+        f"</p>",
+        unsafe_allow_html=True,
+    )

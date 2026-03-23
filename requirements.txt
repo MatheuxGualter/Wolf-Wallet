@@ -25,3 +25,6 @@ requests>=2.31.0,<3.0.0
 
 # --- Environment ---
 python-dotenv>=1.0.0,<2.0.0
+
+# --- Session Persistence ---
+extra-streamlit-components>=0.1.71,<1.0.0
