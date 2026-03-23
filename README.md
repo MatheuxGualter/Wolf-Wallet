@@ -1,7 +1,11 @@
 # 🐺 Wolf Wallet
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://wolf-wallet.streamlit.app/)
+
 > Carteira virtual do **PET-SI — Universidade Federal de Uberlândia (UFU)**.
 > Visualize as movimentações financeiras da conta compartilhada de forma transparente e automatizada.
+
+🔗 **Acesse agora:** [wolf-wallet.streamlit.app](https://wolf-wallet.streamlit.app/)
 
 ---
 
@@ -42,7 +46,7 @@ Atualmente, o responsável pela conta do Mercado Pago do PET-SI precisa baixar o
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/pet-si-ufu/wolf-wallet.git
+git clone https://github.com/MatheuxGualter/Wolf-Wallet.git
 cd wolf-wallet
 
 # 2. Crie e ative o ambiente virtual
@@ -151,8 +155,8 @@ wolf-wallet/
 - [x] **Fase 6** — Contas mensais
 - [x] **Fase 7** — Gestão de usuários e email
 - [x] **Fase 8** — Modo visitante (dados mockados)
-- [ ] **Fase 9** — Polimento UX
-- [ ] **Fase 10** — Deploy
+- [x] **Fase 9** — Polimento UX
+- [x] **Fase 10** — Deploy
 
 ---
 

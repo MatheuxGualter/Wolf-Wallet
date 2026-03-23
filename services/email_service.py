@@ -147,6 +147,9 @@ def send_welcome_email(name: str, email: str, temp_password: str) -> bool:
         </p>
     </div>
     <p>⚠️ <strong>Troque sua senha no primeiro acesso</strong> para garantir a segurança da sua conta.</p>
+    <p style="margin-top: 1.5rem;">
+        <a href="https://wolf-wallet.streamlit.app/" style="background: #e94560; color: #fff; padding: 10px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Acessar o Wolf Wallet →</a>
+    </p>
     """
 
     return _send_email(
@@ -178,6 +181,9 @@ def send_password_reset_email(name: str, email: str, temp_password: str) -> bool
         </p>
     </div>
     <p>⚠️ <strong>Troque sua senha no próximo acesso.</strong></p>
+    <p style="margin-top: 1.5rem;">
+        <a href="https://wolf-wallet.streamlit.app/" style="background: #4ecca3; color: #1a1a2e; padding: 10px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Acessar o Wolf Wallet →</a>
+    </p>
     <p style="color: #888;">Se você não solicitou essa alteração, entre em contato com um administrador.</p>
     """
 
