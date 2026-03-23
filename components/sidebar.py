@@ -118,11 +118,19 @@ def _render_navigation() -> str:
     if current_page in page_values:
         current_index = page_values.index(current_page)
 
+    def _on_nav_change() -> None:
+        """Força rerun imediato ao trocar de página (evita double-click)."""
+        label = st.session_state.get("sidebar_nav")
+        page = nav_items.get(label, Pages.HOME)
+        st.session_state[SessionKeys.CURRENT_PAGE] = page
+
     selected_label = st.radio(
         "Navegação",
         options=list(nav_items.keys()),
         index=current_index,
         label_visibility="collapsed",
+        key="sidebar_nav",
+        on_change=_on_nav_change,
     )
 
     selected_page = nav_items.get(selected_label, Pages.HOME)

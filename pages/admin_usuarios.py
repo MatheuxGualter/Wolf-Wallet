@@ -94,54 +94,49 @@ def _render_user_row(user: dict) -> None:
 
     # Container do usuário
     with st.container():
-        col_info, col_actions = st.columns([3, 2])
+        # Info card (largura total — funciona bem no mobile)
+        st.markdown(
+            f"""
+            <div style="
+                padding: 0.6rem 1rem;
+                border-radius: 8px;
+                background: rgba(255,255,255,0.03);
+                border-left: 3px solid {Colors.POSITIVE if is_active else Colors.NEGATIVE};
+                margin-bottom: 0.3rem;
+            ">
+                <span style="font-size: 1rem; font-weight: 600;">{name}</span>
+                <span style="color: #888; font-size: 0.8rem; margin-left: 0.5rem;">{role_badge}</span>
+                <br>
+                <span style="color: #aaa; font-size: 0.85rem;">📧 {email}</span>
+                <span style="color: #666; font-size: 0.8rem; margin-left: 1rem;">📅 {created_str}</span>
+                <span style="color: #888; font-size: 0.8rem; margin-left: 1rem;">{status_badge}</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-        with col_info:
-            st.markdown(
-                f"""
-                <div style="
-                    padding: 0.6rem 1rem;
-                    border-radius: 8px;
-                    background: rgba(255,255,255,0.03);
-                    border-left: 3px solid {Colors.POSITIVE if is_active else Colors.NEGATIVE};
-                    margin-bottom: 0.3rem;
-                ">
-                    <span style="font-size: 1rem; font-weight: 600;">{name}</span>
-                    <span style="color: #888; font-size: 0.8rem; margin-left: 0.5rem;">{role_badge}</span>
-                    <br>
-                    <span style="color: #aaa; font-size: 0.85rem;">📧 {email}</span>
-                    <span style="color: #666; font-size: 0.8rem; margin-left: 1rem;">📅 {created_str}</span>
-                    <span style="color: #888; font-size: 0.8rem; margin-left: 1rem;">{status_badge}</span>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+        # Botões de ação em linha (4 colunas = mais espaço horizontal)
+        btn_c1, btn_c2, btn_c3, btn_c4 = st.columns([1, 1, 1, 3])
 
-        with col_actions:
-            btn_cols = st.columns(3)
+        with btn_c1:
+            if st.button("✏️ Editar", key=f"edit_{user_id}", use_container_width=True):
+                st.session_state[f"editing_user_{user_id}"] = True
+                st.rerun()
 
-            # Editar
-            with btn_cols[0]:
-                if st.button("✏️", key=f"edit_{user_id}", help="Editar"):
-                    st.session_state[f"editing_user_{user_id}"] = True
+        with btn_c2:
+            if is_active:
+                if st.button("🚫 Desativar", key=f"deact_{user_id}", use_container_width=True):
+                    st.session_state[f"confirm_deact_{user_id}"] = True
                     st.rerun()
+            else:
+                if st.button("✅ Reativar", key=f"react_{user_id}", use_container_width=True):
+                    _reactivate_user(user_id, name)
 
-            # Desativar / Reativar
-            with btn_cols[1]:
-                if is_active:
-                    if st.button("🚫", key=f"deact_{user_id}", help="Desativar"):
-                        st.session_state[f"confirm_deact_{user_id}"] = True
-                        st.rerun()
-                else:
-                    if st.button("✅", key=f"react_{user_id}", help="Reativar"):
-                        _reactivate_user(user_id, name)
-
-            # Reset senha
-            with btn_cols[2]:
-                if is_active:
-                    if st.button("🔑", key=f"reset_{user_id}", help="Resetar senha"):
-                        st.session_state[f"confirm_reset_{user_id}"] = True
-                        st.rerun()
+        with btn_c3:
+            if is_active:
+                if st.button("🔑 Senha", key=f"reset_{user_id}", use_container_width=True):
+                    st.session_state[f"confirm_reset_{user_id}"] = True
+                    st.rerun()
 
     # Confirmações fora do layout de colunas
     if st.session_state.get(f"confirm_deact_{user_id}"):

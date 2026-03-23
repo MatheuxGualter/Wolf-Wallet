@@ -1,0 +1,18 @@
+name: 🐺 Keep Alive
+
+on:
+  schedule:
+    # A cada 5 dias às 08:00 UTC (05:00 BRT)
+    - cron: "0 8 */5 * *"
+  workflow_dispatch: # permite rodar manualmente pelo GitHub
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Wolf Wallet
+        run: |
+          echo "🐺 Acordando Wolf Wallet..."
+          curl -sS -o /dev/null -w "HTTP %{http_code} em %{time_total}s\n" \
+            https://wolf-wallet.streamlit.app/
+          echo "✅ Ping concluído"
