@@ -36,10 +36,14 @@ _SECRET_KEY: str = os.getenv(
 
 
 def _get_cookie_manager():
-    """Retorna uma instância do CookieManager (singleton por sessão)."""
+    """Retorna uma instância única do CookieManager (singleton via session_state)."""
+    if "_wolf_cookie_mgr" in st.session_state:
+        return st.session_state["_wolf_cookie_mgr"]
     try:
         import extra_streamlit_components as stx
-        return stx.CookieManager(key="wolf_cookie_mgr")
+        cm = stx.CookieManager(key="wolf_cookie_mgr")
+        st.session_state["_wolf_cookie_mgr"] = cm
+        return cm
     except ImportError:
         logger.warning("extra-streamlit-components não instalado — cookies desativados.")
         return None

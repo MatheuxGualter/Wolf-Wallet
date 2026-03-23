@@ -78,7 +78,7 @@ def _render_real() -> None:
 
         st.markdown("##### 📊 Evolução Mensal")
         fig = _yield_chart(filtered_df)
-        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
 
         st.divider()
 
@@ -162,7 +162,7 @@ def _render_visitor() -> None:
 
         st.markdown("##### 📊 Evolução Mensal")
         fig = _yield_chart(filtered_df)
-        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
 
         st.divider()
 
