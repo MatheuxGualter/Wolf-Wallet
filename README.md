@@ -99,8 +99,8 @@ wolf-wallet/
 ├── auth/
 │   ├── login.py               # Tela de login
 │   ├── session.py             # Gerenciamento de sessão
-│   ├── password.py            # Hash, validação, reset de senha
-│   └── email_service.py       # Envio de email via Gmail SMTP
+│   ├── cookie_session.py      # Persistência de sessão via cookie
+│   └── password.py            # Hash, validação, reset de senha
 ├── pages/
 │   ├── home.py                # Dashboard principal
 │   ├── extrato.py             # Extrato detalhado
@@ -110,9 +110,10 @@ wolf-wallet/
 │   └── admin_sync.py          # Painel de sincronização (admin)
 ├── services/
 │   ├── mercadopago.py         # Integração com API do Mercado Pago
-│   ├── sync_service.py        # Job de sincronização diária
-│   ├── transaction_service.py # Lógica de negócio das transações
-│   └── report_service.py      # Geração de relatórios e cálculos
+│   ├── sync_service.py        # Job de sincronização (sync diária + chunked)
+│   ├── auto_sync.py           # Sync automática em background + freshness check
+│   ├── report_service.py      # Lógica de negócio e cálculos financeiros
+│   └── email_service.py       # Envio de email via Gmail SMTP
 ├── models/
 │   ├── user.py                # CRUD de usuários
 │   ├── transaction.py         # CRUD de transações
@@ -120,10 +121,13 @@ wolf-wallet/
 │   └── sync_log.py            # CRUD de logs de sync
 ├── components/
 │   ├── sidebar.py             # Sidebar de navegação
-│   ├── cards.py               # Componentes de cards
+│   ├── cards.py               # Componentes de cards do dashboard
 │   ├── charts.py              # Gráficos reutilizáveis
-│   ├── tables.py              # Tabelas reutilizáveis
-│   └── hide_balance.py        # Componente de ocultar saldo
+│   ├── filters.py             # Filtros reutilizáveis (data, tipo, direção)
+│   ├── transaction_table.py   # Tabela de transações estilizada
+│   ├── hide_balance.py        # Componente de ocultar saldo
+│   ├── sync_status.py         # Banner de status da sincronização
+│   └── mobile_css.py          # CSS responsivo para mobile
 ├── mock/
 │   └── mock_data.py           # Dados fictícios (modo visitante)
 ├── sql/
