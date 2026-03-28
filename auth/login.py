@@ -172,12 +172,19 @@ def _handle_forgot_password(email: str) -> None:
 
         user = get_user_by_email(email)
 
-        if not user or not user.get("is_active"):
-            # Mensagem genérica por segurança (não revela se email existe)
+        if not user:
             time.sleep(Auth.FAILED_LOGIN_DELAY)
-            st.info(
-                f"📧 Se o email **{email}** estiver cadastrado, "
-                "uma nova senha será enviada."
+            st.error(
+                f"❌ Não há contas cadastradas com o email **{email}**. "
+                "Contate o administrador ou entre no modo visitante abaixo."
+            )
+            return
+
+        if not user.get("is_active"):
+            time.sleep(Auth.FAILED_LOGIN_DELAY)
+            st.error(
+                "❌ Esta conta está desativada. "
+                "Contate o administrador para reativá-la."
             )
             return
 
