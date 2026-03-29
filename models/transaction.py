@@ -314,7 +314,7 @@ def get_monthly_chart_data(months: int = 12) -> pd.DataFrame:
         "  COALESCE(SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END), 0) as inflows, "
         "  COALESCE(SUM(CASE WHEN transaction_amount < 0 THEN ABS(transaction_amount) ELSE 0 END), 0) as outflows "
         "FROM transactions "
-        "WHERE transaction_date >= NOW() - INTERVAL ':months months' "
+        "WHERE transaction_date >= NOW() - make_interval(months => :months) "
         "GROUP BY TO_CHAR(transaction_date, 'YYYY-MM') "
         "ORDER BY month",
         {"months": months},

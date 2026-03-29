@@ -28,11 +28,34 @@ _COOKIE_NAME: str = "wolf_session"
 _COOKIE_EXPIRY_DAYS: int = 7
 
 # Chave secreta para assinatura do cookie
-# Em produção usa SECRET_KEY do env; fallback para derivação do DATABASE_URL
-_SECRET_KEY: str = os.getenv(
-    "SECRET_KEY",
-    hashlib.sha256(os.getenv("DATABASE_URL", "wolf-wallet-dev").encode()).hexdigest(),
-)
+# Prioridade: st.secrets > env var > derivação do DATABASE_URL
+# NUNCA deve cair no fallback "wolf-wallet-dev" em produção
+def _resolve_secret_key() -> str:
+    """Resolve a chave secreta de forma segura."""
+    # 1. Tenta st.secrets (Streamlit Cloud)
+    try:
+        key = st.secrets.get("SECRET_KEY")
+        if key:
+            return str(key)
+    except Exception:
+        pass
+    # 2. Tenta variável de ambiente
+    key = os.getenv("SECRET_KEY")
+    if key:
+        return key
+    # 3. Deriva do DATABASE_URL (st.secrets ou env)
+    try:
+        db_url = st.secrets.get("DATABASE_URL") or os.getenv("DATABASE_URL")
+        if db_url:
+            return hashlib.sha256(db_url.encode()).hexdigest()
+    except Exception:
+        pass
+    # 4. Último fallback (apenas desenvolvimento local)
+    logger.warning("⚠️ Usando SECRET_KEY de fallback — configure SECRET_KEY em secrets.toml!")
+    return hashlib.sha256("wolf-wallet-dev".encode()).hexdigest()
+
+
+_SECRET_KEY: str = _resolve_secret_key()
 
 
 def _get_cookie_manager():

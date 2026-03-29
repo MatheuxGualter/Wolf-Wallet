@@ -135,7 +135,7 @@ def _render_chart(data: dict) -> None:
         months_to_show = UI.CHART_PERIODS.get(selected_period, 6)
         display_data = chart_data.tail(months_to_show)
         fig = bar_chart_inflows_outflows(display_data)
-        st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
+        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     else:
         st.info("Sem dados de transações para exibir o gráfico.")
 
